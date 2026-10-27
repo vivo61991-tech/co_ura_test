@@ -1,0 +1,383 @@
+{
+ "hub": {
+  "matricula": "A0001",
+  "chave": "lago-vento-pedra",
+  "salt": "pTsLQWm2QDrqUYrKiBtYZg==",
+  "iter": 600000
+ },
+ "pacote": {
+  "app": "co-ura",
+  "v": 1,
+  "gerado_em": "2026-10-27T00:14:01+00:00",
+  "hub": {
+   "acessos": {
+    "33acd3dd6087e3956a3b91ae3a5e950363f199b64f90197dd0048ff39df743a8": {
+     "salt": "pTsLQWm2QDrqUYrKiBtYZg==",
+     "iv": "caeKGrfHIQIoPdnk",
+     "ct": "6usczO3toOAz0PnhuO8HTlxt53lYpmC72AuFy4Z+t9WBB5SPxH0pvKskhK9Qw3+K"
+    }
+   }
+  },
+  "dados": {
+   "iv": "zGf1SqsPcjLjpDK+",
+   "ct": "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"
+  }
+ },
+ "esperado": {
+  "referencia": "2026-10-27",
+  "dia_semana": "Terça",
+  "dados_ate": "17:04",
+  "coletado_em": "2026-10-27T00:14:01",
+  "defasado": false,
+  "aviso_defasagem": null,
+  "exemplo": true,
+  "secoes": [
+   {
+    "id": "registro_dia",
+    "titulo": "Registro do Dia",
+    "dados_ate": "17:04",
+    "aviso": null,
+    "cards": [
+     {
+      "id": null,
+      "titulo": "Total Geral",
+      "valor": 211,
+      "formato": "int",
+      "variacao_pct": -12.5,
+      "tendencia": "baixa",
+      "projecao": null,
+      "legenda": "",
+      "nota": null,
+      "pausado": false
+     },
+     {
+      "id": null,
+      "titulo": "Total Dani",
+      "valor": 248,
+      "formato": "int",
+      "variacao_pct": 3.2,
+      "tendencia": "estavel",
+      "projecao": null,
+      "legenda": "Chat",
+      "nota": null,
+      "pausado": false
+     },
+     {
+      "id": null,
+      "titulo": "Total CO",
+      "valor": 285,
+      "formato": "int",
+      "variacao_pct": 21.7,
+      "tendencia": "alta",
+      "projecao": null,
+      "legenda": "Insourcing",
+      "nota": null,
+      "pausado": false
+     },
+     {
+      "id": null,
+      "titulo": "Total TEL",
+      "valor": 322,
+      "formato": "int",
+      "variacao_pct": -7.4,
+      "tendencia": "baixa",
+      "projecao": null,
+      "legenda": "Outsourcing",
+      "nota": null,
+      "pausado": false
+     },
+     {
+      "id": null,
+      "titulo": "Manobra Offline",
+      "valor": 359,
+      "formato": "int",
+      "variacao_pct": -12.5,
+      "tendencia": "baixa",
+      "projecao": null,
+      "legenda": "",
+      "nota": "Dados até 16:54",
+      "pausado": false
+     }
+    ],
+    "serie": {
+     "faixas": [
+      "08:00",
+      "08:30",
+      "09:00",
+      "09:30",
+      "10:00",
+      "10:30",
+      "11:00",
+      "11:30",
+      "12:00",
+      "12:30",
+      "13:00",
+      "13:30",
+      "14:00",
+      "14:30",
+      "15:00",
+      "15:30",
+      "16:00",
+      "16:30",
+      "17:00",
+      "17:30",
+      "18:00",
+      "18:30",
+      "19:00",
+      "19:30",
+      "20:00",
+      "20:30",
+      "21:00"
+     ],
+     "hoje": [
+      102.0,
+      153.0,
+      204.0,
+      246.0,
+      272.0,
+      280.0,
+      272.0,
+      255.0,
+      238.0,
+      246.0,
+      264.0,
+      272.0,
+      264.0,
+      255.0,
+      246.0,
+      238.0,
+      230.0,
+      212.0,
+      187.0,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+     ],
+     "media_geral": [
+      120.0,
+      180.0,
+      240.0,
+      290.0,
+      320.0,
+      330.0,
+      320.0,
+      300.0,
+      280.0,
+      290.0,
+      310.0,
+      320.0,
+      310.0,
+      300.0,
+      290.0,
+      280.0,
+      270.0,
+      250.0,
+      220.0,
+      190.0,
+      160.0,
+      140.0,
+      120.0,
+      100.0,
+      80.0,
+      60.0,
+      40.0
+     ],
+     "dia_semana": "segunda",
+     "media_dia_semana": [
+      111.6,
+      167.4,
+      223.2,
+      269.7,
+      297.6,
+      306.9,
+      297.6,
+      279.0,
+      260.4,
+      269.7,
+      288.3,
+      297.6,
+      288.3,
+      279.0,
+      269.7,
+      260.4,
+      251.1,
+      232.5,
+      204.6,
+      176.7,
+      148.8,
+      130.2,
+      111.6,
+      93.0,
+      74.4,
+      55.8,
+      37.2
+     ]
+    }
+   },
+   {
+    "id": "ativacao_b2b",
+    "titulo": "Ativação B2B",
+    "dados_ate": "17:04",
+    "aviso": null,
+    "cards": [
+     {
+      "id": null,
+      "titulo": "Total Ativação B2B",
+      "valor": 322,
+      "formato": "int",
+      "variacao_pct": 3.2,
+      "tendencia": "estavel",
+      "projecao": 372,
+      "legenda": "",
+      "nota": null,
+      "pausado": false
+     },
+     {
+      "id": null,
+      "titulo": "Total Dani B2B",
+      "valor": 396,
+      "formato": "int",
+      "variacao_pct": 21.7,
+      "tendencia": "alta",
+      "projecao": null,
+      "legenda": "Filas Dani B2B",
+      "nota": null,
+      "pausado": false
+     },
+     {
+      "id": null,
+      "titulo": "Total URA-CO B2B",
+      "valor": 470,
+      "formato": "int",
+      "variacao_pct": -7.4,
+      "tendencia": "baixa",
+      "projecao": null,
+      "legenda": "Filas CO B2B",
+      "nota": null,
+      "pausado": false
+     }
+    ]
+   },
+   {
+    "id": "rifaina",
+    "titulo": "Rifaina",
+    "dados_ate": "17:04",
+    "aviso": null,
+    "cards": [
+     {
+      "id": null,
+      "titulo": "Total Rifaina Geral",
+      "valor": 433,
+      "formato": "int",
+      "variacao_pct": 21.7,
+      "tendencia": "alta",
+      "projecao": 483,
+      "legenda": "",
+      "nota": null,
+      "pausado": false
+     },
+     {
+      "id": null,
+      "titulo": "Rifaina Suporte",
+      "valor": 544,
+      "formato": "int",
+      "variacao_pct": -7.4,
+      "tendencia": "baixa",
+      "projecao": null,
+      "legenda": "Suporte",
+      "nota": null,
+      "pausado": false
+     },
+     {
+      "id": null,
+      "titulo": "Rifaina Pistolagem",
+      "valor": 655,
+      "formato": "int",
+      "variacao_pct": -12.5,
+      "tendencia": "baixa",
+      "projecao": null,
+      "legenda": "Pistolagem",
+      "nota": null,
+      "pausado": false
+     }
+    ]
+   },
+   {
+    "id": "coe_cat",
+    "titulo": "COE CAT",
+    "dados_ate": "17:08",
+    "aviso": null,
+    "cards": [
+     {
+      "id": null,
+      "titulo": "Total COE Geral",
+      "valor": 544,
+      "formato": "int",
+      "variacao_pct": -7.4,
+      "tendencia": "baixa",
+      "projecao": 594,
+      "legenda": "",
+      "nota": null,
+      "pausado": false
+     },
+     {
+      "id": null,
+      "titulo": "Total COE CAT",
+      "valor": 692,
+      "formato": "int",
+      "variacao_pct": -12.5,
+      "tendencia": "baixa",
+      "projecao": null,
+      "legenda": "Filas Entrantes (IN)",
+      "nota": null,
+      "pausado": false
+     },
+     {
+      "id": null,
+      "titulo": "Total COE CAT Externo",
+      "valor": 840,
+      "formato": "int",
+      "variacao_pct": null,
+      "tendencia": null,
+      "projecao": null,
+      "legenda": "Extensões (OUT)",
+      "nota": null,
+      "pausado": false
+     },
+     {
+      "id": null,
+      "titulo": "Taxa de Abandono",
+      "valor": 3.3,
+      "formato": "pct",
+      "variacao_pct": null,
+      "tendencia": null,
+      "projecao": null,
+      "legenda": "",
+      "nota": null,
+      "pausado": false
+     }
+    ]
+   }
+  ],
+  "falhas": {
+   "ok": true,
+   "abertas": 1,
+   "hoje": 2,
+   "lista": [
+    {
+     "sistema": "SISTEMA EXEMPLO A",
+     "falha": "Lentidão",
+     "criticidade": "ALTA",
+     "inicio": "30/09/2026 08:12",
+     "duracao": "2h 0min",
+     "segmento": "B2C"
+    }
+   ]
+  }
+ }
+}
