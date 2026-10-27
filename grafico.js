@@ -133,8 +133,35 @@
     return PLURAL[String(serie.dia_semana || '').toLowerCase()] || 'dia da semana';
   }
 
+  // agrega a série em grupos de `passo` faixas de 30 min (1 = 30min, 2 = 1h, 4 = 2h).
+  // Soma hoje e as médias por grupo; hoje fica null no grupo sem nenhum dado.
+  // As faixas viram o horário de INÍCIO do grupo ("08:00"), para o eixo X continuar legível.
+  function agrega(serie, passo) {
+    passo = passo || 1;
+    if (passo <= 1) return serie;
+    var n = serie.faixas.length;
+    function soma(arr) {
+      if (!arr) return null;
+      var out = [];
+      for (var g = 0; g < n; g += passo) {
+        var s = 0, tem = false;
+        for (var k = g; k < Math.min(g + passo, n); k++) {
+          if (arr[k] != null) { s += Number(arr[k]) || 0; tem = true; }
+        }
+        out.push(tem ? s : null);
+      }
+      return out;
+    }
+    var faixas = [];
+    for (var g = 0; g < n; g += passo) faixas.push(serie.faixas[g]);
+    return {
+      faixas: faixas, dia_semana: serie.dia_semana,
+      hoje: soma(serie.hoje), media_geral: soma(serie.media_geral), media_dia_semana: soma(serie.media_dia_semana)
+    };
+  }
+
   var api = { tendencia: tendencia, ultimoIdx: ultimoIdx, mediaDe: mediaDe, variacao: variacao,
-    topo: topo, fmtEixo: fmtEixo, pico: pico, geometria: geometria, nomeDia: nomeDia };
+    topo: topo, fmtEixo: fmtEixo, pico: pico, geometria: geometria, nomeDia: nomeDia, agrega: agrega };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.URAGrafico = api;
 })(typeof self !== 'undefined' ? self : globalThis);
