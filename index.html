@@ -18,8 +18,9 @@
   --brand:var(--p700); --accent:var(--p700);
   --bg:#EFEAF5; --card:#fff; --nav:#F3EFF8; --ink:#1f1530; --ink2:#5b5068; --ink3:#9a90a8; --line:#e6e0ee;
   --ok:#5f8a12; --okbg:#eef7dc; --warn:#b36800; --warnbg:#fff1dc; --bad:#c41a60; --badbg:#fde6ef;
-  /* linhas do gráfico */
-  --hoje:#642A90; --hojeArea:#ebe0f4; --media:#9a90a8;
+  /* gráfico: barras de hoje, fatia acima da média (alerta) e linha da média */
+  --barra:#7a3dad; --acima:#EC357D; --media:#8a7e9c;
+  --hoje:#642A90; --hojeArea:#ebe0f4;
   --r:20px; --sh:0 1px 3px rgba(58,22,88,.05),0 10px 28px rgba(58,22,88,.09);
   --fundo:radial-gradient(70% 45% at 100% 0%,#E4D6F3 0%,transparent 70%),radial-gradient(60% 40% at 0% 55%,#F5E6F0 0%,transparent 70%),radial-gradient(70% 45% at 90% 100%,#E9E0F6 0%,transparent 70%),linear-gradient(180deg,#F2EEF7,#ECE6F3);
   --safe-t: env(safe-area-inset-top, 0px); --safe-b: env(safe-area-inset-bottom, 0px);
@@ -29,7 +30,8 @@
   :root{ --bg:#120A1A; --card:#221832; --nav:#160D20; --ink:#efe9f6; --ink2:#bdb1cc; --ink3:#7d7190; --line:#352849;
     --brand:var(--p800); --accent:#b48fd3;
     --ok:#b6e05a; --okbg:#253312; --warn:#ffb347; --warnbg:#3a2608; --bad:#ff6fa5; --badbg:#3f1226;
-    --hoje:#c49be6; --hojeArea:#2e1f44; --media:#7d7190;
+    --barra:#a978d6; --acima:#ff6fa5; --media:#8d80a3;
+    --hoje:#c49be6; --hojeArea:#2e1f44;
     --sh:0 1px 0 rgba(255,255,255,.04) inset,0 10px 28px rgba(0,0,0,.38);
     --fundo:radial-gradient(70% 45% at 100% 0%,#2A1840 0%,transparent 70%),radial-gradient(60% 40% at 0% 55%,#2A1426 0%,transparent 70%),linear-gradient(180deg,#140C1E,#100818); }
 }
@@ -80,7 +82,10 @@ main{max-width:760px;margin:0 auto;padding:12px 12px calc(28px + var(--safe-b))}
 .cg svg.graf text{fill:var(--ink3);font-size:9px;font-variant-numeric:tabular-nums}
 .leg{display:flex;flex-wrap:wrap;gap:14px;margin:6px 4px 2px;font-size:12.5px;color:var(--ink2)}
 .leg span{display:inline-flex;align-items:center;gap:6px}
-.leg i{width:16px;height:0;border-top:3px solid var(--hoje);border-radius:2px}
+.leg i{width:16px;height:0;border-top:3px solid var(--barra);border-radius:2px}
+.leg i.sq{width:12px;height:12px;border-top:0;border-radius:3px}
+.leg i.sq.h{background:var(--barra)}
+.leg i.sq.a{background:var(--acima)}
 .leg i.tr{border-top:2px dashed var(--media)}
 .toque{display:block;margin:8px 4px 0;font-size:12.5px;color:var(--ink3);min-height:1.4em}
 .toque b{color:var(--ink);font-weight:700}
@@ -111,7 +116,7 @@ main{max-width:760px;margin:0 auto;padding:12px 12px calc(28px + var(--safe-b))}
   <div class="vazio" id="inicial">Carregando…</div>
 </main>
 
-<script src="grafico.js?v=1.0.0"></script>
-<script src="app.js?v=1.0.0"></script>
+<script src="grafico.js?v=1.1.0"></script>
+<script src="app.js?v=1.1.0"></script>
 </body>
 </html>

@@ -7,7 +7,7 @@
 (function () {
   'use strict';
 
-  var APP_VERSION = '1.0.0';
+  var APP_VERSION = '1.1.0';
   var G = window.URAGrafico;
   var CONFERIR_MS = 60000;           // reconfere o arquivo a cada minuto
 
@@ -83,19 +83,42 @@
     return '<span class="chip ' + t + '">' + ARROW[t] + txt + '</span>';
   }
 
+  // caminho de barra com cantos arredondados só no topo
+  function barPath(x, w, yTop, yBot, r) {
+    r = Math.max(0, Math.min(r, w / 2, yBot - yTop));
+    return 'M' + x + ',' + yBot.toFixed(2) +
+      ' L' + x + ',' + (yTop + r).toFixed(2) +
+      ' Q' + x + ',' + yTop.toFixed(2) + ' ' + (x + r).toFixed(2) + ',' + yTop.toFixed(2) +
+      ' L' + (x + w - r).toFixed(2) + ',' + yTop.toFixed(2) +
+      ' Q' + (x + w).toFixed(2) + ',' + yTop.toFixed(2) + ' ' + (x + w).toFixed(2) + ',' + (yTop + r).toFixed(2) +
+      ' L' + (x + w).toFixed(2) + ',' + yBot.toFixed(2) + ' Z';
+  }
+
+  function svgBarras(geo) {
+    var R = 2.6;
+    return geo.barras.map(function (b) {
+      if (b.yHoje >= b.y0) return '';   // zero chamadas na faixa
+      if (b.acima && b.yMedia != null) {
+        // base (0 → média): topo reto, roxo; fatia que excede (média → hoje): topo arredondado, alerta
+        var base = '<rect x="' + b.x + '" y="' + b.yMedia + '" width="' + b.w + '" height="' + (b.y0 - b.yMedia).toFixed(2) + '" fill="var(--barra)"/>';
+        var cap = '<path d="' + barPath(b.x, b.w, b.yHoje, b.yMedia, R) + '" fill="var(--acima)"/>';
+        return base + cap;
+      }
+      return '<path d="' + barPath(b.x, b.w, b.yHoje, b.y0, R) + '" fill="var(--barra)"/>';
+    }).join('');
+  }
+
   function svgGrafico(geo, id, sel) {
     var g = geo.grade.map(function (l) { return '<line x1="30" y1="' + l.y.toFixed(1) + '" x2="300" y2="' + l.y.toFixed(1) + '" stroke="var(--line)" stroke-width="1"/>'; }).join('');
     var ry = geo.rotulosY.map(function (l) { return '<text x="25" y="' + (l.y + 3).toFixed(1) + '" text-anchor="end">' + esc(l.t) + '</text>'; }).join('');
     var rx = geo.rotulosX.map(function (l) { return '<text x="' + l.x.toFixed(1) + '" y="125" text-anchor="middle">' + esc(l.t) + '</text>'; }).join('');
     var xs = sel != null && sel >= 0 ? geo.X(sel) : null;
-    return '<svg class="graf" viewBox="-16 0 326 128" role="img" aria-label="Evolução das chamadas por faixa de 30 minutos" data-graf="' + id + '">' +
+    return '<svg class="graf" viewBox="-16 0 326 128" role="img" aria-label="Evolução das chamadas por faixa de 30 minutos, em barras; o trecho acima da média fica em cor de alerta" data-graf="' + id + '">' +
       '<g>' + g + '</g>' + ry + rx +
-      (xs != null ? '<line x1="' + xs.toFixed(1) + '" y1="8" x2="' + xs.toFixed(1) + '" y2="112" stroke="var(--ink3)" stroke-width="1" stroke-dasharray="2 3"/>' : '') +
-      (geo.area ? '<polygon fill="var(--hojeArea)" opacity=".75" points="' + geo.area + '"/>' : '') +
+      svgBarras(geo) +
+      (xs != null ? '<line data-cursor="1" x1="' + xs.toFixed(1) + '" y1="8" x2="' + xs.toFixed(1) + '" y2="112" stroke="var(--ink3)" stroke-width="1" stroke-dasharray="2 3"/>' : '') +
       (geo.media ? '<polyline fill="none" stroke="var(--media)" stroke-width="2" stroke-dasharray="4 3" stroke-linejoin="round" points="' + geo.media + '"/>' : '') +
-      (geo.hoje ? '<polyline fill="none" stroke="var(--hoje)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" points="' + geo.hoje + '"/>' : '') +
       (geo.pontoMedia ? '<circle cx="' + geo.pontoMedia.x.toFixed(1) + '" cy="' + geo.pontoMedia.y.toFixed(1) + '" r="3" fill="var(--card)" stroke="var(--media)" stroke-width="2"/>' : '') +
-      (geo.pontoHoje ? '<circle cx="' + geo.pontoHoje.x.toFixed(1) + '" cy="' + geo.pontoHoje.y.toFixed(1) + '" r="4" fill="var(--hoje)" stroke="var(--card)" stroke-width="2"/>' : '') +
       '<rect x="30" y="0" width="270" height="128" fill="transparent" data-toque="' + id + '"/>' +
       '</svg>';
   }
@@ -130,7 +153,9 @@
         (totMedia != null ? ' <span class="num">vs ' + fmtNum(Math.round(totMedia)) + '</span>' : '') + '</span></div>' +
       chipVar(pct) + (pct != null ? ' <span class="toque" style="display:inline;margin:0;color:var(--ink2)">' + (qual === 'geral' ? 'vs média histórica' : 'vs média das ' + esc(nome)) + '</span>' : '') +
       svgGrafico(geo, qual, s) +
-      '<div class="leg"><span><i></i>hoje</span>' + (geo.media ? '<span><i class="tr"></i>' + (qual === 'geral' ? 'média geral' : 'média das ' + esc(nome)) + '</span>' : '') + '</div>' +
+      '<div class="leg"><span><i class="sq h"></i>hoje</span>' +
+        '<span><i class="sq a"></i>acima da média</span>' +
+        (geo.media ? '<span><i class="tr"></i>' + (qual === 'geral' ? 'média geral' : 'média das ' + esc(nome)) + '</span>' : '') + '</div>' +
       '<span class="toque" data-info="' + qual + '">' + faixaTxt(serie, qual, s) + '</span>' +
       '</div>';
   }

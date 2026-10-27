@@ -72,6 +72,24 @@
     var max = topo(pico(serie, qual));
     var X = function (i) { return o.x0 + (n > 1 ? (o.x1 - o.x0) * i / (n - 1) : 0); };
     var Y = function (v) { return o.y0 - (o.y0 - o.y1) * (v / max); };
+
+    // barras de hoje (uma por faixa já decorrida). A fatia que passa da média da faixa é "acima".
+    var bw = (n > 1 ? (o.x1 - o.x0) / (n - 1) : o.x1 - o.x0) * 0.66;
+    var barras = [];
+    for (var b = 0; b <= u; b++) {
+      var hv = serie.hoje[b];
+      if (hv == null) continue;
+      var mv = media && media[b] != null ? Number(media[b]) : null;
+      barras.push({
+        i: b,
+        x: +(X(b) - bw / 2).toFixed(2),
+        w: +bw.toFixed(2),
+        y0: +o.y0.toFixed(2),
+        yHoje: +Y(hv).toFixed(2),
+        yMedia: mv != null ? +Y(mv).toFixed(2) : null,
+        acima: mv != null && Number(hv) > mv
+      });
+    }
     // pontos de "hoje": só até a última faixa com dado
     var ptsHoje = [];
     for (var i = 0; i <= u; i++) {
@@ -93,7 +111,7 @@
     });
 
     return {
-      max: max, u: u, n: n,
+      max: max, u: u, n: n, barras: barras, larguraBarra: +bw.toFixed(2),
       hoje: ptsHoje.join(' '),
       area: u >= 0 && ptsHoje.length ? X(0).toFixed(1) + ',' + o.y0 + ' ' + ptsHoje.join(' ') + ' ' + X(u).toFixed(1) + ',' + o.y0 : '',
       media: ptsMedia.join(' '),
