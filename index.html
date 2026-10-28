@@ -70,6 +70,8 @@ main{max-width:760px;margin:0 auto;padding:12px 12px calc(28px + var(--safe-b))}
 .seg{display:inline-flex;background:var(--nav);border:1px solid var(--line);border-radius:12px;padding:3px;gap:2px;margin:0 2px 14px}
 .seg button{border:0;background:none;color:var(--ink2);font:inherit;font-size:13px;font-weight:650;padding:7px 14px;border-radius:9px;cursor:pointer}
 .seg button.on{background:var(--card);color:var(--p700);box-shadow:0 1px 2px rgba(58,22,88,.12)}
+.seg button:disabled{opacity:.4;cursor:default}
+.seg.alt{margin:2px 2px 12px}
 @media (prefers-color-scheme: dark){.seg button.on{color:#d5bfe7}}
 
 /* tiles de totais (dias fechados, sem série) */
@@ -88,6 +90,9 @@ main{max-width:760px;margin:0 auto;padding:12px 12px calc(28px + var(--safe-b))}
 .chip.alta{background:var(--badbg);color:var(--bad)}
 .chip.baixa{background:var(--okbg);color:var(--ok)}
 .chip.estavel{background:var(--p100);color:var(--p700)}
+.cmp{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 2px 6px}
+.cmp .chip{margin:0}
+.cmp-tx{color:var(--ink2);font-size:13px}
 @media (prefers-color-scheme: dark){.chip.estavel{background:#3a2356;color:#d5bfe7}}
 .chip svg{width:13px;height:13px}
 .cg svg.graf{display:block;width:100%;height:auto;touch-action:pan-y}
@@ -151,7 +156,7 @@ main{max-width:760px;margin:0 auto;padding:12px 12px calc(28px + var(--safe-b))}
   <div class="vazio" id="inicial">Carregando…</div>
 </main>
 
-<script src="grafico.js?v=1.3.0"></script>
-<script src="app.js?v=1.3.0"></script>
+<script src="grafico.js?v=1.4.0"></script>
+<script src="app.js?v=1.4.0"></script>
 </body>
 </html>

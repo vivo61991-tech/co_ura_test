@@ -9,14 +9,15 @@
 (function () {
   'use strict';
 
-  var APP_VERSION = '1.3.0';
+  var APP_VERSION = '1.4.0';
   var G = window.URAGrafico;
   var CONFERIR_MS = 60000;           // reconfere o arquivo a cada minuto
 
   var dias = [];                     // todos os dias do data.txt, mais novo → mais velho
   var sel = 0;                       // dia selecionado
   var passo = 1;                     // agrupamento do eixo X: 1 = 30min, 2 = 1h, 4 = 2h
-  var faixaSel = { geral: null, dia: null };   // faixa destacada em cada gráfico
+  var comparar = 'geral';            // média exibida: 'geral' | 'dia' (semanal)
+  var faixaSel = null;               // faixa destacada no gráfico
 
   function $(id) { return document.getElementById(id); }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
@@ -190,35 +191,44 @@
     return cab + grade + nota;
   }
 
-  function cardGrafico(qual) {
-    var nativa = dias[sel].serie;                 // 30 min — base do cabeçalho/variação (não muda com o eixo)
-    var serie = serieAtual();                     // agregada no passo — só as barras reagrupam
-    var media = G.mediaDe(serie, qual);
+  function cardGrafico() {
+    var d = dias[sel];
+    var nativa = d.serie;                          // 30 min — base do cabeçalho/variação (não muda com o eixo)
+    var qual = comparar;
+    if (qual === 'dia' && !nativa.media_dia_semana) qual = 'geral';   // fim de semana: sem média do dia
+    var serie = serieAtual();                      // agregada no passo — só as barras reagrupam
     var mediaNat = G.mediaDe(nativa, qual);
     var nome = G.nomeDia(nativa);
-    var titulo = qual === 'geral' ? 'Hoje × média geral' : ('Hoje × média das ' + (nome || 'semana'));
-    if (qual === 'dia' && !mediaNat) {
-      return '<div class="cg"><div class="cab"><h2>' + esc(titulo) + '</h2></div>' +
-        '<p class="toque">Sem média do dia da semana para esta data.</p></div>';
-    }
+    var labelMedia = qual === 'geral' ? 'média geral' : 'média das ' + (nome || 'semana');
     var geo = G.geometria(serie, qual);
     var pct = G.variacao(nativa.hoje, mediaNat);
     var u = G.ultimoIdx(serie.hoje);
-    var s = faixaSel[qual];
+    var s = faixaSel;
     if (s == null || s > u) s = u;
     var un = G.ultimoIdx(nativa.hoje);
     var totMedia = mediaNat ? mediaNat.slice(0, un + 1).reduce(function (a, v) { return a + (Number(v) || 0); }, 0) : null;
     var volHoje = nativa.hoje.slice(0, un + 1).reduce(function (a, v) { return a + (Number(v) || 0); }, 0);
     return '<div class="cg">' +
-      '<div class="cab"><h2>' + esc(titulo) + '</h2>' +
+      '<div class="cab"><h2>Evolução de hoje</h2>' +
         '<span class="tot">no dia até agora<br><b class="num">' + fmtNum(volHoje) + '</b>' +
         (totMedia != null ? ' <span class="num">vs ' + fmtNum(Math.round(totMedia)) + '</span>' : '') + '</span></div>' +
-      chipVar(pct) + (pct != null ? ' <span class="toque" style="display:inline;margin:0;color:var(--ink2)">' + (qual === 'geral' ? 'vs média histórica' : 'vs média das ' + esc(nome)) + '</span>' : '') +
-      svgGrafico(geo, qual, s) +
+      toggleMedia(nativa) +
+      '<div class="cmp">' + chipVar(pct) + (pct != null ? '<span class="cmp-tx">vs ' + esc(qual === 'geral' ? 'média histórica' : labelMedia) + '</span>' : '') + '</div>' +
+      svgGrafico(geo, 'g', s) +
       '<div class="leg"><span><i class="sq h"></i>hoje</span>' +
         '<span><i class="sq a"></i>acima da média</span>' +
-        (geo.media ? '<span><i class="tr"></i>' + (qual === 'geral' ? 'média geral' : 'média das ' + esc(nome)) + '</span>' : '') + '</div>' +
-      '<div class="info" data-info="' + qual + '">' + infoHTML(serie, qual, s, dataPorExtenso(dias[sel].referencia, dias[sel].dia_semana)) + '</div>' +
+        (geo.media ? '<span><i class="tr"></i>' + esc(labelMedia) + '</span>' : '') + '</div>' +
+      '<div class="info" data-info="g">' + infoHTML(serie, qual, s, dataPorExtenso(d.referencia, d.dia_semana)) + '</div>' +
+      '</div>';
+  }
+
+  // botão para alternar entre média geral e média semanal (desabilita Semanal no fim de semana)
+  function toggleMedia(nativa) {
+    var temSemanal = !!nativa.media_dia_semana;
+    var efetivo = (comparar === 'dia' && temSemanal) ? 'dia' : 'geral';
+    return '<div class="seg alt" role="group" aria-label="Comparar com">' +
+      '<button type="button" data-cmp="geral" aria-pressed="' + (efetivo === 'geral') + '"' + (efetivo === 'geral' ? ' class="on"' : '') + '>Geral</button>' +
+      '<button type="button" data-cmp="dia" aria-pressed="' + (efetivo === 'dia') + '"' + (efetivo === 'dia' ? ' class="on"' : '') + (temSemanal ? '' : ' disabled title="Sem média do dia da semana para esta data"') + '>Semanal</button>' +
       '</div>';
   }
 
@@ -267,7 +277,7 @@
     if (!dias.length) return;
     var d = dias[sel];
     var html = barraDias();
-    if (d.serie) html += controlesEixo() + cardGrafico('geral') + cardGrafico('dia');
+    if (d.serie) html += controlesEixo() + cardGrafico();
     else html += painelTotais(d);
     $('app').innerHTML = html;
     ligar();
@@ -276,8 +286,14 @@
   function trocaDia(delta) {
     var novo = Math.min(dias.length - 1, Math.max(0, sel + delta));
     if (novo === sel) return;
-    sel = novo; faixaSel = { geral: null, dia: null };
+    sel = novo; faixaSel = null;
     desenhar(); window.scrollTo(0, 0);
+  }
+
+  // média efetiva (cai para 'geral' quando o dia não tem média semanal)
+  function qualAtual() {
+    var nativa = dias[sel].serie;
+    return (comparar === 'dia' && nativa && nativa.media_dia_semana) ? 'dia' : 'geral';
   }
 
   function ligar() {
@@ -287,39 +303,47 @@
       b.onclick = function () {
         var np = +b.getAttribute('data-passo');
         if (np === passo) return;
-        passo = np; faixaSel = { geral: null, dia: null }; desenhar();
+        passo = np; faixaSel = null; desenhar();
       };
     });
-    document.querySelectorAll('[data-toque]').forEach(function (alvo) {
-      var qual = alvo.getAttribute('data-toque');
+    document.querySelectorAll('[data-cmp]').forEach(function (b) {
+      b.onclick = function () {
+        if (b.disabled) return;
+        var nc = b.getAttribute('data-cmp');
+        if (nc === comparar) return;
+        comparar = nc; desenhar();   // mantém a faixa selecionada, troca a média
+      };
+    });
+    var alvo = document.querySelector('[data-toque]');
+    if (alvo) {
       var svg = alvo.closest('svg');
-      function aponta(ev) {
+      var aponta = function (ev) {
         var p = svg.createSVGPoint();
         var e = ev.touches && ev.touches[0] ? ev.touches[0] : ev;
         p.x = e.clientX; p.y = e.clientY;
         var x = p.matrixTransform(svg.getScreenCTM().inverse()).x;
         var serie = serieAtual(), n = serie.faixas.length, u = G.ultimoIdx(serie.hoje);
-        faixaSel[qual] = Math.max(0, Math.min(u, Math.round((x - 30) / 270 * (n - 1))));
-        atualizaInfo(qual);
-      }
+        faixaSel = Math.max(0, Math.min(u, Math.round((x - 30) / 270 * (n - 1))));
+        atualizaInfo();
+      };
       alvo.addEventListener('click', aponta);
       alvo.addEventListener('touchmove', function (ev) { ev.preventDefault(); aponta(ev); }, { passive: false });
-    });
+    }
   }
 
-  // redesenha só a linha-guia + o texto da faixa (sem recriar tudo)
-  function atualizaInfo(qual) {
-    var serie = serieAtual(), geo = G.geometria(serie, qual), s = faixaSel[qual];
-    var svg = document.querySelector('svg[data-graf="' + qual + '"]');
+  // redesenha só a linha-guia + o painel de detalhes (sem recriar o gráfico todo)
+  function atualizaInfo() {
+    var qual = qualAtual(), serie = serieAtual(), geo = G.geometria(serie, qual), s = faixaSel;
+    var svg = document.querySelector('svg[data-graf="g"]');
     if (svg) {
       var ln = svg.querySelector('line[data-cursor]');
       var xs = s != null && s >= 0 ? geo.X(s) : null;
       if (xs != null) {
         if (!ln) { ln = document.createElementNS('http://www.w3.org/2000/svg', 'line'); ln.setAttribute('data-cursor', '1'); ln.setAttribute('stroke', 'var(--ink3)'); ln.setAttribute('stroke-width', '1'); ln.setAttribute('stroke-dasharray', '2 3'); svg.insertBefore(ln, svg.querySelector('polyline,circle')); }
-        ln.setAttribute('x1', xs.toFixed(1)); ln.setAttribute('y1', '8'); ln.setAttribute('x2', xs.toFixed(1)); ln.setAttribute('y2', '112');
+        ln.setAttribute('x1', xs.toFixed(1)); ln.setAttribute('y1', String(YTOP)); ln.setAttribute('x2', xs.toFixed(1)); ln.setAttribute('y2', String(YBASE));
       }
     }
-    var info = document.querySelector('[data-info="' + qual + '"]');
+    var info = document.querySelector('[data-info="g"]');
     if (info) info.innerHTML = infoHTML(serie, qual, s, dataPorExtenso(dias[sel].referencia, dias[sel].dia_semana));
   }
 
