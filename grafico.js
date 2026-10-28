@@ -65,7 +65,7 @@
 
   // geometria do gráfico (sem DOM): pontos das linhas, grade e rótulos
   function geometria(serie, qual, opt) {
-    var o = Object.assign({ x0: 30, x1: 300, y0: 112, y1: 8 }, opt || {});
+    var o = Object.assign({ x0: 30, x1: 300, y0: 118, y1: 22 }, opt || {});
     var media = mediaDe(serie, qual);
     var n = serie.faixas.length;
     var u = ultimoIdx(serie.hoje);
@@ -83,10 +83,12 @@
       barras.push({
         i: b,
         x: +(X(b) - bw / 2).toFixed(2),
+        cx: +X(b).toFixed(2),
         w: +bw.toFixed(2),
         y0: +o.y0.toFixed(2),
         yHoje: +Y(hv).toFixed(2),
         yMedia: mv != null ? +Y(mv).toFixed(2) : null,
+        val: Number(hv),
         acima: mv != null && Number(hv) > mv
       });
     }
@@ -102,13 +104,8 @@
       if (v != null) ptsMedia.push(X(k).toFixed(1) + ',' + Y(v).toFixed(1));
     });
 
-    var rotulosX = [];
-    serie.faixas.forEach(function (f, i) {
-      if (!/:00$/.test(f) || !(i === 0 || i === n - 1 || Number(f.slice(0, 2)) % 4 === 0)) return;
-      var ant = rotulosX[rotulosX.length - 1];
-      if (ant && X(i) - ant.x < 30) { if (i === n - 1) rotulosX.pop(); else return; }
-      rotulosX.push({ x: X(i), t: f.slice(0, 2) + 'h' });
-    });
+    // todos os horários do eixo X (sem pular nenhum)
+    var rotulosX = serie.faixas.map(function (f, i) { return { x: X(i), t: f }; });
 
     return {
       max: max, u: u, n: n, barras: barras, larguraBarra: +bw.toFixed(2),

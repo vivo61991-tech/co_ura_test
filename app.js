@@ -9,7 +9,7 @@
 (function () {
   'use strict';
 
-  var APP_VERSION = '1.2.0';
+  var APP_VERSION = '1.3.0';
   var G = window.URAGrafico;
   var CONFERIR_MS = 60000;           // reconfere o arquivo a cada minuto
 
@@ -113,18 +113,35 @@
     }).join('');
   }
 
+  var YTOP = 22, YBASE = 118, VBH = 150;
+
+  // rótulos de valor em cima de cada coluna (na cor de alerta quando acima da média)
+  function svgRotulos(geo, s) {
+    return geo.barras.map(function (b) {
+      if (b.val == null || b.yHoje >= b.y0) return '';
+      var y = (b.yHoje - 2.5).toFixed(1);
+      var cl = 'vl' + (b.acima ? ' a' : '') + (b.i === s ? ' sel' : '');
+      return '<text class="' + cl + '" x="' + b.cx + '" y="' + y + '" text-anchor="start" transform="rotate(-90 ' + b.cx + ' ' + y + ')">' + esc(fmtNum(b.val)) + '</text>';
+    }).join('');
+  }
+
   function svgGrafico(geo, id, s) {
     var g = geo.grade.map(function (l) { return '<line x1="30" y1="' + l.y.toFixed(1) + '" x2="300" y2="' + l.y.toFixed(1) + '" stroke="var(--line)" stroke-width="1"/>'; }).join('');
-    var ry = geo.rotulosY.map(function (l) { return '<text x="25" y="' + (l.y + 3).toFixed(1) + '" text-anchor="end">' + esc(l.t) + '</text>'; }).join('');
-    var rx = geo.rotulosX.map(function (l) { return '<text x="' + l.x.toFixed(1) + '" y="125" text-anchor="middle">' + esc(l.t) + '</text>'; }).join('');
+    var ry = geo.rotulosY.map(function (l) { return '<text class="yl" x="25" y="' + (l.y + 3).toFixed(1) + '" text-anchor="end">' + esc(l.t) + '</text>'; }).join('');
+    // todos os horários, na vertical (rotacionados), destacando o selecionado
+    var rx = geo.rotulosX.map(function (l, i) {
+      var x = l.x.toFixed(1);
+      return '<text class="xl' + (i === s ? ' sel' : '') + '" x="' + x + '" y="' + (YBASE + 5).toFixed(1) + '" text-anchor="end" transform="rotate(-90 ' + x + ' ' + (YBASE + 5).toFixed(1) + ')">' + esc(l.t) + '</text>';
+    }).join('');
     var xs = s != null && s >= 0 ? geo.X(s) : null;
-    return '<svg class="graf" viewBox="-16 0 326 128" role="img" aria-label="Evolução das chamadas por faixa, em barras; o trecho acima da média fica em cor de alerta" data-graf="' + id + '">' +
+    return '<svg class="graf" viewBox="-16 0 326 ' + VBH + '" role="img" aria-label="Evolução das chamadas por faixa, em colunas; o trecho acima da média fica em cor de alerta" data-graf="' + id + '">' +
       '<g>' + g + '</g>' + ry + rx +
       svgBarras(geo) +
-      (xs != null ? '<line data-cursor="1" x1="' + xs.toFixed(1) + '" y1="8" x2="' + xs.toFixed(1) + '" y2="112" stroke="var(--ink3)" stroke-width="1" stroke-dasharray="2 3"/>' : '') +
+      svgRotulos(geo, s) +
+      (xs != null ? '<line data-cursor="1" x1="' + xs.toFixed(1) + '" y1="' + YTOP + '" x2="' + xs.toFixed(1) + '" y2="' + YBASE + '" stroke="var(--ink3)" stroke-width="1" stroke-dasharray="2 3"/>' : '') +
       (geo.media ? '<polyline fill="none" stroke="var(--media)" stroke-width="2" stroke-dasharray="4 3" stroke-linejoin="round" points="' + geo.media + '"/>' : '') +
       (geo.pontoMedia ? '<circle cx="' + geo.pontoMedia.x.toFixed(1) + '" cy="' + geo.pontoMedia.y.toFixed(1) + '" r="3" fill="var(--card)" stroke="var(--media)" stroke-width="2"/>' : '') +
-      '<rect x="30" y="0" width="270" height="128" fill="transparent" data-toque="' + id + '"/>' +
+      '<rect x="30" y="0" width="270" height="' + VBH + '" fill="transparent" data-toque="' + id + '"/>' +
       '</svg>';
   }
 
@@ -142,12 +159,35 @@
     return start + '–' + fim;
   }
 
-  function faixaTxt(serie, qual, i) {
+  function pctTxt(p) { return (p > 0 ? '+' : '') + String(p).replace('.', ',') + '%'; }
+  function numSinal(n) { return (n > 0 ? '+' : '') + fmtNum(n); }
+
+  // painel de detalhes da faixa tocada: data, horário, volume, média e diferença (volume e %)
+  function infoHTML(serie, qual, i, dataExt) {
     var media = G.mediaDe(serie, qual);
-    if (i == null || i < 0) return 'Toque no gráfico para ver uma faixa.';
-    var h = serie.hoje[i], m = media ? media[i] : null;
-    var dado = h == null ? 'ainda sem dado' : '<b>' + fmtNum(h) + '</b> chamadas';
-    return esc(rotuloFaixa(serie, i)) + ': ' + dado + (m != null ? ' · média ' + fmtNum(Math.round(m)) : '') + ' · toque para outra faixa';
+    if (i == null || i < 0) return '<div class="info-ph">Toque numa coluna para ver os detalhes do horário.</div>';
+    var cab = '<div class="info-h"><b>' + esc(rotuloFaixa(serie, i)) + '</b> · ' + esc(dataExt) + '</div>';
+    var h = serie.hoje[i];
+    if (h == null) return cab + '<div class="info-ph">Ainda sem dado para este horário.</div>';
+    var m = media && media[i] != null ? Number(media[i]) : null;
+    var difV = m != null ? Math.round(h - m) : null;
+    var difP = m != null && m > 0 ? Math.round((h / m - 1) * 1000) / 10 : null;
+    var cls = difV == null ? '' : difV > 0 ? 'up' : difV < 0 ? 'down' : 'eq';
+    function cel(lb, vl, c) { return '<div><small>' + lb + '</small><b' + (c ? ' class="' + c + '"' : '') + '>' + vl + '</b></div>'; }
+    var grade = '<div class="info-g">' +
+      cel('Volume', fmtNum(h), '') +
+      cel('Média', m != null ? fmtNum(Math.round(m)) : '—', '') +
+      cel('Diferença', difV != null ? numSinal(difV) : '—', cls) +
+      cel('Percentual', difP != null ? pctTxt(difP) : '—', cls) +
+      '</div>';
+    var nota = '';
+    if (difV != null) {
+      var frase = difV > 0 ? ('Passou da média em ' + fmtNum(Math.abs(difV)) + ' chamadas')
+        : difV < 0 ? ('Ficou ' + fmtNum(Math.abs(difV)) + ' chamadas abaixo da média')
+        : 'Igual à média';
+      nota = '<div class="info-note ' + cls + '">' + frase + (difP != null && difV !== 0 ? ' (' + pctTxt(difP) + ')' : '') + '</div>';
+    }
+    return cab + grade + nota;
   }
 
   function cardGrafico(qual) {
@@ -178,7 +218,7 @@
       '<div class="leg"><span><i class="sq h"></i>hoje</span>' +
         '<span><i class="sq a"></i>acima da média</span>' +
         (geo.media ? '<span><i class="tr"></i>' + (qual === 'geral' ? 'média geral' : 'média das ' + esc(nome)) + '</span>' : '') + '</div>' +
-      '<span class="toque" data-info="' + qual + '">' + faixaTxt(serie, qual, s) + '</span>' +
+      '<div class="info" data-info="' + qual + '">' + infoHTML(serie, qual, s, dataPorExtenso(dias[sel].referencia, dias[sel].dia_semana)) + '</div>' +
       '</div>';
   }
 
@@ -280,7 +320,7 @@
       }
     }
     var info = document.querySelector('[data-info="' + qual + '"]');
-    if (info) info.innerHTML = faixaTxt(serie, qual, s);
+    if (info) info.innerHTML = infoHTML(serie, qual, s, dataPorExtenso(dias[sel].referencia, dias[sel].dia_semana));
   }
 
   // ---------- início ----------

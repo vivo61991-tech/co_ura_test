@@ -1,5 +1,5 @@
 /* CO_URA · service worker — cache offline só deste app */
-const VERSION = '1.2.0';
+const VERSION = '1.3.0';
 const CACHE = 'co-ura-v' + VERSION;
 const CORE = ['./', 'index.html', 'grafico.js', 'app.js', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png'];
 
